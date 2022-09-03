@@ -199,6 +199,58 @@ class _auth{
             data: 'Update account success'
         }
     }
+
+    updatePassword = async (data) => {
+        const schema = joi.object({
+            id_user: joi.number().required(),
+            password: joi.string().required(),
+            new_password: joi.string().required()
+        });
+
+        const validate = schema.validate(data);
+        if (validate.error) {
+            const errorDetails = validate.error.details.map(detail => detail.message);
+
+            return {
+                status: false,
+                code: 422,
+                error: errorDetails
+            }
+        }
+
+        const checkUsername = await m$user.getUserById(data.id_user);
+        if (!checkUsername.status) {
+            return {
+                status: false,
+                code: 404,
+                data: 'Sorry, user not found'
+            }
+        }
+
+        const isMatch = await comparePassword(data.password, checkUsername.data[0].password);
+        if (!isMatch) {
+            return {
+                status: false,
+                code: 404,
+                data: 'Sorry, password not match'
+            }
+        }
+
+        data.new_password = await hashPassword(data.new_password);
+        const updatePassword = await m$user.updatePassword(data);
+        if (!updatePassword.status) {
+            return {
+                status: false,
+                code: 500,
+                data: `Sorry, update password failed, Error: ${updatePassword.error}`
+            }
+        }
+
+        return {
+            status: true,
+            data: 'Update password success'
+        }
+    }
         
 }
 

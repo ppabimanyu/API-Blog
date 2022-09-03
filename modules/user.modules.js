@@ -161,8 +161,46 @@ class _user{
             };
         }
         catch (error) {
-            console.error('CreateUser user module Error: ', error);
+            console.error('UpdateUser user module Error: ', error);
 
+            return {
+                status: false,
+                error
+            }
+        }
+    }
+
+    updatePassword = async (data) => {
+        try {
+            const schema = joi.object({
+                id_user: joi.number().required(),
+                password: joi.string().required(),
+                new_password: joi.string().required()
+            });
+
+            const { error, value } = schema.validate(data);
+            if (error) {
+                const errorDetails = error.details.map((detail) => detail.message);
+                return {
+                    status: false,
+                    code: 422,
+                    error: errorDetails.join(', '),
+                }
+            }
+
+            console.log(data.password)
+            console.log(data.new_password)
+
+            const update = await mysql.query('UPDATE auth_user SET password = ? WHERE id_user = ?', [data.new_password, data.id_user]);
+
+            return {
+                status: true,
+                data: update,
+            };
+        }
+        catch (error) {
+            console.error('UpdatePassword user module Error: ', error);
+            
             return {
                 status: false,
                 error
@@ -195,7 +233,7 @@ class _user{
             };
         }
         catch (error) {
-            console.error('CreateUser user module Error: ', error);
+            console.error('DeleteUser user module Error: ', error);
 
             return {
                 status: false,

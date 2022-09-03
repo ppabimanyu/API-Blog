@@ -60,4 +60,16 @@ AuthController.put('/', userSession, async (req, res, next) => {
     response.sendResponse(res, updateAccount);
 });
 
+/**
+ * Update Password
+ * @param {string} password
+ * @param {string} newPassword
+ * @return {number} id_user
+ */
+
+AuthController.put('/password', userSession, async (req, res, next) => {
+    const updatePassword = await m$auth.updatePassword(req.body);
+    response.sendResponse(res, updatePassword);
+});
+
 module.exports = AuthController;

@@ -1,7 +1,7 @@
 {
 	"apps": [{
-		"name": "api-todolist",
-		"cwd": "/home/abimanyu/Development/stechoq/materi-backend/",
+		"name": "api-blog",
+		"cwd": "/home/abimanyu/Development/stechoq/tugas-materi-backend/",
 		"script": "./app.js",
 		"node_args": "--expose-gc",
 		"watch": false,
