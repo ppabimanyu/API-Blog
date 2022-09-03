@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const m$user = require('../modules/auth.modules');
+const m$auth = require('../modules/auth.modules');
 const response = require('../helpers/response');
 const userSession = require('../middleware/auth.middleware');
 
@@ -9,11 +9,11 @@ const AuthController = Router();
  * Login
  * @param {string} username
  * @param {string} password
- * @return {object} token
  */
 
 AuthController.post('/login', async (req, res, next) => {
-    const login = await m$user.login(req.body);
+    req.cookies = req.headers.cookie;
+    const login = await m$auth.login(req.body);
     response.sendResponse(res, login);
 });
 
@@ -24,7 +24,7 @@ AuthController.post('/login', async (req, res, next) => {
  */
 
 AuthController.post('/register', async (req, res, next) => {
-    const register = await m$user.register(req.body);
+    const register = await m$auth.register(req.body);
     response.sendResponse(res, register);
 });
 
@@ -33,8 +33,31 @@ AuthController.post('/register', async (req, res, next) => {
  */
 
 AuthController.post('/logout', userSession, async (req, res, next) => {
-    const logout = await m$user.logout(req.body);
+    const logout = await m$auth.logout(req.body);
     response.sendResponse(res, logout);
+});
+
+/**
+ * Delete Account
+ * @param {string} password
+ * @return {number} id_user
+ */
+
+AuthController.delete('/', userSession, async (req, res, next) => {
+    const deleteAccount = await m$auth.deleteAccount(req.body);
+    response.sendResponse(res, deleteAccount);
+});
+
+/**
+ * Update Account
+ * @param {string} username
+ * @param {string} password
+ * @return {number} id_user
+ */
+
+AuthController.put('/', userSession, async (req, res, next) => {
+    const updateAccount = await m$auth.updateAccount(req.body);
+    response.sendResponse(res, updateAccount);
 });
 
 module.exports = AuthController;

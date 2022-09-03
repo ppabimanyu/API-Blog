@@ -11,7 +11,7 @@ class _response {
                 return true
             }
 
-            res.status(data && data.status ? 200 : 500)
+            res.status(!data && data.status ? 200 : 500)
             res.send(data)
             return true
         }catch (error){
@@ -42,4 +42,4 @@ class _response {
     }
 }
 
-module.exports = new _response();
+module.exports = new _response()

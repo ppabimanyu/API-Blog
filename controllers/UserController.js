@@ -18,8 +18,8 @@ UserController.get('/', async (req, res, next) => {
  * @param {number} id
 */
 
-UserController.get('/detail/:id', async (req, res, next) => {
-    const detail = await m$user.detailUser(req.params.id);
+UserController.get('/:id', async (req, res, next) => {
+    const detail = await m$user.getUserById(req.params.id);
     response.sendResponse(res, detail);
 } );
 

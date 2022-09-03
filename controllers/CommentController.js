@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const m$comment = require('../modules/comment.modules');
 const response = require('../helpers/response');
+const userSession = require('../middleware/auth.middleware');
 
 const CommentController = Router();
 
@@ -21,9 +22,9 @@ CommentController.get('/:id', async (req, res, next) => {
  * @param {number} id_user
  */
 
-CommentController.post('/', async (req, res, next) => {
+CommentController.post('/', userSession, async (req, res, next) => {
     // req body, req params, req query
-    const add = await m$comment.addComment(req.body);
+    const add = await m$comment.createComment(req.body);
     response.sendResponse(res, add);
 });
 
@@ -31,10 +32,11 @@ CommentController.post('/', async (req, res, next) => {
  * Edit Comment
  * @param {string} comment
  * @param {number} id_comment
+ * @param {number} id_user
  */
 
-CommentController.put('/', async (req, res, next) => {
-    const edit = await m$comment.editComment(req.body);
+CommentController.put('/', userSession, async (req, res, next) => {
+    const edit = await m$comment.updateComment(req.body);
     response.sendResponse(res, edit);
 });
 
@@ -43,8 +45,8 @@ CommentController.put('/', async (req, res, next) => {
  * @param {number} id_comment
  */
 
-CommentController.delete('/:id', async (req, res, next) => {
-    const del = await m$comment.deleteComment(req.params.id);
+CommentController.delete('/', userSession, async (req, res, next) => {
+    const del = await m$comment.deleteComment(req.body);
     response.sendResponse(res, del);
 });
 

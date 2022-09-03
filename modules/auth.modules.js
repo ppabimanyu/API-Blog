@@ -22,7 +22,7 @@ class _auth{
         }
         
         const checkUsername = await m$user.getUserByUsername(data.username);
-        if (!checkUsername) {
+        if (!checkUsername.status) {
             return {
                 status: false,
                 code: 404,
@@ -90,12 +90,116 @@ class _auth{
         }
     }
 
-    logout = async (data) => {
+    logout = async (res) => {
+        // res.cookie('token', '', { maxAge: 1 });
         return {
             status: true,
             data: 'Logout success'
         }
     }
+
+    deleteAccount = async (data) => {
+        const schema = joi.object({
+            id_user: joi.number().required(),
+            password: joi.string().required()
+        });
+
+        const validate = schema.validate(data);
+        if (validate.error) {
+            const errorDetails = validate.error.details.map(detail => detail.message);
+
+            return {
+                status: false,
+                code: 422,
+                error: errorDetails
+            }
+        }
+
+        
+        const checkUsername = await m$user.getUserById(data.id_user);
+        if (!checkUsername.status) {
+            return {
+                status: false,
+                code: 404,
+                data: 'Sorry, user not found'
+            }
+        }
+
+        const isMatch = await comparePassword(data.password, checkUsername.data[0].password);
+        if (!isMatch) {
+            return {
+                status: false,
+                code: 404,
+                data: 'Sorry, password not match'
+            }
+        }
+
+        const deleteAccount = await m$user.deleteUser(data.id_user);
+        if (!deleteAccount.status) {
+            return {
+                status: false,
+                code: 500,
+                data: `Sorry, delete account failed, Error: ${deleteAccount.error}`
+            }
+        }
+
+        return {
+            status: true,
+            data: 'Delete account success'
+        }
+    }
+    
+    updateAccount = async (data) => {
+        const schema = joi.object({
+            id_user: joi.number().required(),
+            username: joi.string().required(),
+            password: joi.string().required()
+        });
+
+        const validate = schema.validate(data);
+        if (validate.error) {
+            const errorDetails = validate.error.details.map(detail => detail.message);
+
+            return {
+                status: false,
+                code: 422,
+                error: errorDetails
+            }
+        }
+
+        const checkUsername = await m$user.getUserById(data.id_user);
+        if (!checkUsername.status) {
+            return {
+                status: false,
+                code: 404,
+                data: 'Sorry, user not found'
+            }
+        }
+
+        const isMatch = await comparePassword(data.password, checkUsername.data[0].password);
+        if (!isMatch) {
+            return {
+                status: false,
+                code: 404,
+                data: 'Sorry, password not match'
+            }
+        }
+
+        const updateAccount = await m$user.updateUser(data);
+        if (!updateAccount.status) {
+            return {
+                status: false,
+                code: 500,
+                data: `Sorry, update account failed, Error: ${updateAccount.error}`
+            }
+        }
+
+        return {
+            status: true,
+            data: 'Update account success'
+        }
+    }
+        
 }
 
 module.exports = new _auth();

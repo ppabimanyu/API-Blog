@@ -37,7 +37,7 @@ class _article{
 
             const detailArticle = await mysql.query('SELECT id_article, id_user, title, content, created_at, updated_at FROM d_article WHERE id_article = ?', [id]);
 
-            if (detailArticle.length < 0) {
+            if (detailArticle.length <= 0) {
                 return {
                     status: false,
                     code: 404,
@@ -63,7 +63,7 @@ class _article{
     addArticle = async (data) => {
         try {
             const schema = joi.object({
-                idUser: joi.number().required(),
+                id_user: joi.number().required(),
                 title: joi.string().required(),
                 content: joi.string().required(),
             });
@@ -78,7 +78,7 @@ class _article{
                 }
             }
 
-            const add = await mysql.query('INSERT INTO d_article (id_user, title, content) VALUES (?, ?, ?)', [data.idUser, data.title, data.content]);
+            const add = await mysql.query('INSERT INTO d_article (id_user, title, content) VALUES (?, ?, ?)', [data.id_user, data.title, data.content]);
 
             return {
                 status: true,
@@ -99,6 +99,7 @@ class _article{
         try {
             const schema = joi.object({
                 id_article: joi.number().required(),
+                id_user: joi.number().required(),
                 title: joi.string().required(),
                 content: joi.string().required(),
             });
@@ -113,7 +114,7 @@ class _article{
                 }
             }
 
-            const edit = await mysql.query('UPDATE d_article SET title = ?, content = ? WHERE id_article = ?', [data.title, data.content, data.id_article]);
+            const edit = await mysql.query('UPDATE d_article SET title = ?, content = ? WHERE id_article = ? AND id_user', [data.title, data.content, data.id_article, data.id_user]);
 
             return {
                 status: true,
@@ -130,10 +131,13 @@ class _article{
     }
 
     // Delete article
-    deleteArticle = async (id) => {
+    deleteArticle = async (data) => {
         try {
-            const schema = joi.number().required();
-            const validate = schema.validate(id);
+            const schema = joi.object({
+                id_article: joi.number().required(),
+                id_user: joi.number().required(),
+            });
+            const validate = schema.validate(data);
             if (validate.error) {
                 const errorDetails = validate.error.details.map(detail => detail.message);
 
@@ -144,7 +148,7 @@ class _article{
                 }
             }
 
-            const del = await mysql.query('DELETE FROM d_article WHERE id_article = ?', [id]);
+            const del = await mysql.query('DELETE FROM d_article WHERE id_article = ? AND id_user = ?', [data.id_article, data.id_user]);
 
             return {
                 status: true,

@@ -9,20 +9,12 @@ const userSession = async (req, res, next) => {
       try {
         token = req.headers.authorization.split(' ')[1]
 
-        console.log(config.jwt.secret)
         const decoded = jwt.verify(token, config.jwt.secret)
 
-        console.log(`decoded = ${decoded.username}`);
-  
         const user = await m$user.getUserByUsername(decoded.username)
         
-  
-        if (user) {
-          req.user = {
-            username: user.data[0].username,
-            password : user.data[0].password
-          }
-  
+        if (user.status) {
+          req.body.id_user = user.data[0].id_user
           next()
         } else {
           res.status(401).send({ message: 'Not authorized' })

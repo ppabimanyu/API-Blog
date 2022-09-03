@@ -20,8 +20,8 @@ ArticleController.get('/', async (req, res, next) => {
  * @param {number} id_article
  */
 
-ArticleController.get('/detail', async (req, res, next) => {
-    const detail = await m$article.detailArticle(req.query.id);
+ArticleController.get('/detail/:id', async (req, res, next) => {
+    const detail = await m$article.detailArticle(req.params.id);
     response.sendResponse(res, detail);
 });
 
@@ -55,8 +55,8 @@ ArticleController.put('/', userSession, async (req, res, next) => {
  * @param {number} id_article
  */
 
-ArticleController.delete('/:id', userSession, async (req, res, next) => {
-    const del = await m$article.deleteArticle(req.params.id);
+ArticleController.delete('/', userSession, async (req, res, next) => {
+    const del = await m$article.deleteArticle(req.body);
     response.sendResponse(res, del);
 });
 

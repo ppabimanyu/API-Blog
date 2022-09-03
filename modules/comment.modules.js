@@ -5,7 +5,7 @@ class _comment{
     // List all comments
     listComment = async (articleId) => {
         try{
-            const list = await mysql.query('SELECT * FROM d_comment WHERE article_id = ?', [articleId]);
+            const list = await mysql.query('SELECT * FROM d_comment WHERE id_article = ?', [parseInt(articleId)]);
             return {
                 status: true,
                 data: list,
@@ -25,8 +25,8 @@ class _comment{
         try {
             const schema = joi.object({
                 comment: joi.string().required(),
-                article_id: joi.number().required(),
-                user_id: joi.number().required(),
+                id_article: joi.number().required(),
+                id_user: joi.number().required(),
             });
             const validate = schema.validate(data);
             if (validate.error) {
@@ -39,7 +39,7 @@ class _comment{
                 }
             }
 
-            const createComment = await mysql.query('INSERT INTO d_comment VALUE id_user = ?, id_article = ?, comment = ?', [data.user_id, data.article_id, data.comment]);
+            const createComment = await mysql.query('INSERT INTO d_comment (id_user, id_article, comment) VALUES (?, ?, ?)', [data.id_user, data.id_article, data.comment]);
 
             return {
                 status: true,
@@ -56,10 +56,12 @@ class _comment{
     }
 
     // Update comment
-    updateComment = async (id, data) => {
+    updateComment = async (data) => {
         try {
             const schema = joi.object({
                 comment: joi.string(),
+                id_user: joi.number(),
+                id_comment: joi.number(),
             });
             const validate = schema.validate(data);
             if (validate.error) {
@@ -72,7 +74,7 @@ class _comment{
                 }
             }
 
-            const updateComment = await mysql.query('UPDATE d_comment SET comment = ? WHERE id_comment = ?', [data.comment, id]);
+            const updateComment = await mysql.query('UPDATE d_comment SET comment = ? WHERE id_comment = ? AND id_user = ?', [data.comment, data.id_comment, data.id_user]);
 
             return {
                 status: true,
@@ -89,10 +91,13 @@ class _comment{
     }
 
     // Delete comment
-    deleteComment = async (id) => {
+    deleteComment = async (data) => {
         try {
-            const schema = joi.number().required();
-            const validate = schema.validate(id);
+            const schema = joi.object({
+                id_comment: joi.number().required(),
+                id_user: joi.number().required(),
+            });
+            const validate = schema.validate(data);
             if (validate.error) {
                 const errorDetails = validate.error.details.map(detail => detail.message);
 
@@ -103,7 +108,7 @@ class _comment{
                 }
             }
 
-            const deleteComment = await mysql.query('DELETE FROM d_comment WHERE id_comment = ?', [id]);
+            const deleteComment = await mysql.query('DELETE FROM d_comment WHERE id_comment = ? AND id_user = ?', [data.id_comment, data.id_user]);
 
             return {
                 status: true,

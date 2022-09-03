@@ -6,7 +6,7 @@ class _user{
     // List all users
     listUser = async () => {
         try{
-            const list = await mysql.query('SELECT * FROM auth_user', []);
+            const list = await mysql.query('SELECT id_user, username, created_at, updated_at FROM auth_user', []);
             return {
                 status: true,
                 data: list,
@@ -37,13 +37,20 @@ class _user{
 
             const detailUser = await mysql.query('SELECT * FROM auth_user WHERE id_user = ?', [id]);
 
-            if (detailUser.length < 0) {
+            if (detailUser.length <= 0) {
                 return {
                     status: false,
                     code: 404,
                     data: 'Sorry, user not found'
                 }
             }
+
+
+            return {
+                status: true,
+                data: detailUser,
+            }
+
         } catch (error) {
             console.error('GetUserById user module Error: ', error);
 
@@ -69,7 +76,7 @@ class _user{
             }
 
             const detailUser = await mysql.query('SELECT * FROM auth_user WHERE username = ?', [username]);
-
+            
             if (detailUser.length <= 0) {
                 return {
                     status: false,
@@ -84,46 +91,6 @@ class _user{
             }
         } catch (error) {
             console.error('GetUserByUsername user module Error: ', error);
-
-            return {
-                status: false,
-                error
-            }
-        }
-    }
-                    
-
-    // Detail user
-    detailUser = async (id) => {
-        try {
-            const schema = joi.number().required();
-            const validate = schema.validate(id);
-            if (validate.error) {
-                const errorDetails = validate.error.details.map(detail => detail.message);
-
-                return {
-                    status: false,
-                    code: 422,
-                    error: errorDetails
-                }
-            }
-
-            const detailUser = await mysql.query('SELECT id_user, username, created_at, updated_at FROM auth_user WHERE id_user = ?', [id]);
-
-            if (detailUser.length < 0) {
-                return {
-                    status: false,
-                    code: 404,
-                    data: 'Sorry, user not found'
-                }
-            }
-
-            return {
-                status: true,
-                data: detailUser[0]
-            }
-        } catch (error) {
-            console.error('DetailUser user module Error: ', error);
 
             return {
                 status: false,
@@ -168,15 +135,15 @@ class _user{
         }
     }
 
-    editUser = async (id, body) => {
+    updateUser = async (data) => {
         try {
             const schema = joi.object({
-                username: joi.string(),
-                email: joi.string().email(),
-                password: joi.string(),
+                id_user: joi.number().required(),
+                username: joi.string().required(),
+                password: joi.string().required()
             });
 
-            const { error, value } = schema.validate(body);
+            const { error, value } = schema.validate(data);
             if (error) {
                 const errorDetails = error.details.map((detail) => detail.message);
                 return {
@@ -186,7 +153,7 @@ class _user{
                 }
             }
 
-            const update = await mysql.query('UPDATE auth_user SET username = ?, password = ? WHERE id_user = ?', [body.name, body.email, id]);
+            const update = await mysql.query('UPDATE auth_user SET username = ? WHERE id_user = ?', [data.username, data.id_user]);
 
             return {
                 status: true,
